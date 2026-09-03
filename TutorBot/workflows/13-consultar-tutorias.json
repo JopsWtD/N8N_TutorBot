@@ -1,0 +1,21 @@
+{
+  "name": "13 - Estudiante - Consultar Tutorias",
+  "nodes": [
+    {"parameters":{"operation":"read","documentId":{"__rl":true,"value":"10ZfjTJsPj0M5NJWTzbNYAFG-r8bWXLbmXxIQrz4DwmE","mode":"list","cachedResultName":"TUTORIAS"},"sheetName":{"__rl":true,"value":"gid=0","mode":"list","cachedResultName":"Hoja 1"},"filtersUI":{"values":[{"lookupColumn":"id_estudiante","lookupValue":"={{ $json.telegram_user }}"}]},"options":{}},"id":"d9b69c4f-528e-4c1b-ab63-c69b9a2d6f70","name":"Sheets - Get Tutorias Estudiante","type":"n8n-nodes-base.googleSheets","typeVersion":4.5,"position":[-736,0],"alwaysOutputData":true,"retryOnFail":true,"maxTries":3,"waitBetweenTries":2000,"credentials":{"googleSheetsOAuth2Api":{"id":"zIS9uzBUTY2kZjIZ","name":"Google Sheets account"}}},
+    {"parameters":{"jsCode":"const activas = ['Solicitada','Asignada','Confirmada'];\nconst rows = $input.all().map(i => i.json).filter(r => r.id_estudiante && activas.includes(r.estado));\nreturn [{ json: {\n  telegram_user: $('Trigger - Gestionar Tutorias').first().json.telegram_user,\n  accion: $('Trigger - Gestionar Tutorias').first().json.accion,\n  tutorias: rows\n}}];"},"id":"9af02d20-51e6-49db-b385-ddc071ffead5","name":"Code - Resumir Activas","type":"n8n-nodes-base.code","typeVersion":2,"position":[-512,0]},
+    {"parameters":{"mode":"runOnceForEachItem","jsCode":"const tutorias = $json.tutorias;\nlet mensaje;\nif (tutorias.length === 0) {\n  mensaje = 'No tienes tutorias activas en este momento. Escribeme si quieres solicitar una.';\n} else {\n  const lista = tutorias.map(t => `- ${t.fecha} ${t.hora} - ${t.materia} (${t.estado})`).join('\\n');\n  mensaje = 'Tus tutorias activas:\\n\\n' + lista;\n}\nreturn { json: { telegram_user: $json.telegram_user, mensaje } };"},"id":"303a74d6-5016-43c7-96f6-d63cad11bfd5","name":"Code - Formatear Lista","type":"n8n-nodes-base.code","typeVersion":2,"position":[-288,0]},
+    {"parameters":{"inputSource":"passthrough"},"id":"bde2a604-48d5-4b53-96c6-ad94b737b838","name":"Trigger - Gestionar Tutorias","type":"n8n-nodes-base.executeWorkflowTrigger","typeVersion":1.1,"position":[-960,0]},
+    {"parameters":{"assignments":{"assignments":[{"id":"t1","name":"ok","type":"boolean","value":true}]},"options":{}},"id":"d83d5b3b-5d7e-4b46-b73d-4ff08825171f","name":"Terminal - Consultar","type":"n8n-nodes-base.set","typeVersion":3.4,"position":[160,0]},
+    {"parameters":{"workflowId":{"__rl":true,"mode":"id","value":"ucriG0ZjEfB7QzRC"},"workflowInputs":{"mappingMode":"defineBelow","matchingColumns":[],"schema":[],"value":{"canal":"telegram_estudiante","destinatario":"={{ $json.telegram_user }}","mensaje":"={{ $json.mensaje }}"}},"mode":"each","options":{}},"id":"5870fb02-8497-42d2-a079-e9564f5444cc","name":"Sub-workflow - Notificar Lista","type":"n8n-nodes-base.executeWorkflow","typeVersion":1.2,"position":[-64,0]}
+  ],
+  "connections": {
+    "Sheets - Get Tutorias Estudiante": {"main": [[{"node":"Code - Resumir Activas","type":"main","index":0}]]},
+    "Trigger - Gestionar Tutorias": {"main": [[{"node":"Sheets - Get Tutorias Estudiante","type":"main","index":0}]]},
+    "Code - Formatear Lista": {"main": [[{"node":"Sub-workflow - Notificar Lista","type":"main","index":0}]]},
+    "Sub-workflow - Notificar Lista": {"main": [[{"node":"Terminal - Consultar","type":"main","index":0}]]},
+    "Code - Resumir Activas": {"main": [[{"node":"Code - Formatear Lista","type":"main","index":0}]]}
+  },
+  "pinData": {},
+  "settings": {"executionOrder": "v1", "binaryMode": "separate"},
+  "active": false
+}

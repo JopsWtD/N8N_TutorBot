@@ -1,0 +1,15 @@
+{
+  "name": "02 - Nucleo - Definicion de Pasos",
+  "nodes": [
+    {"parameters":{"jsCode":"return [{\njson: {\nsteps: $input.all().map(item => item.json)\n}\n}];"},"type":"n8n-nodes-base.code","typeVersion":2,"position":[240,-16],"id":"f4c8aac6-0645-4376-ac89-67d529f93494","name":"Code in JavaScript"},
+    {"parameters":{"documentId":{"__rl":true,"value":"1m79ut-xtIM_0yElMzTivvBK8nyp6DFtIBtKBFjpMHrw","mode":"list","cachedResultName":"STEPS"},"sheetName":{"__rl":true,"value":"gid=0","mode":"list","cachedResultName":"Hoja 1"},"options":{}},"type":"n8n-nodes-base.googleSheets","typeVersion":4.7,"position":[16,-16],"id":"47ec1cd1-5bbe-4ac2-97d3-8acf2897188e","name":"Get row(s) in sheet","alwaysOutputData":true,"retryOnFail":true,"maxTries":3,"waitBetweenTries":2000,"credentials":{"googleSheetsOAuth2Api":{"id":"zIS9uzBUTY2kZjIZ","name":"Google Sheets account"}}},
+    {"id":"67a5ef33-0533-49d8-bacc-969e8f14412d","name":"Trigger - Definicion Pasos","type":"n8n-nodes-base.executeWorkflowTrigger","typeVersion":1.1,"position":[-208,-16],"parameters":{"inputSource":"passthrough"}}
+  ],
+  "connections": {
+    "Get row(s) in sheet": {"main": [[{"node":"Code in JavaScript","type":"main","index":0}]]},
+    "Trigger - Definicion Pasos": {"main": [[{"node":"Get row(s) in sheet","type":"main","index":0}]]}
+  },
+  "pinData": {},
+  "settings": {"executionOrder": "v1", "binaryMode": "separate"},
+  "active": false
+}

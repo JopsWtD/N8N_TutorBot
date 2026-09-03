@@ -1,0 +1,19 @@
+{
+  "name": "16 - Tutor - Agenda",
+  "nodes": [
+    {"parameters":{"documentId":{"__rl":true,"value":"1Qd9MRV9Nz_TardN4lOQjTHaFKWZewGtgejMuFdWFEEQ","mode":"list","cachedResultName":"TUTORES"},"sheetName":{"__rl":true,"value":"gid=0","mode":"list","cachedResultName":"Hoja 1"},"filtersUI":{"values":[{"lookupColumn":"telegram_user","lookupValue":"={{ $json.telegram_user }}"}]},"options":{}},"id":"9a6355f0-ba4e-41e0-abc5-f98d7ac30069","name":"Sheets - Get Tutor","type":"n8n-nodes-base.googleSheets","typeVersion":4.5,"position":[-976,48],"retryOnFail":true,"maxTries":3,"waitBetweenTries":2000,"credentials":{"googleSheetsOAuth2Api":{"id":"zIS9uzBUTY2kZjIZ","name":"Google Sheets account"}}},
+    {"parameters":{"documentId":{"__rl":true,"value":"10ZfjTJsPj0M5NJWTzbNYAFG-r8bWXLbmXxIQrz4DwmE","mode":"list","cachedResultName":"TUTORIAS"},"sheetName":{"__rl":true,"value":"gid=0","mode":"list","cachedResultName":"Hoja 1"},"filtersUI":{"values":[{"lookupColumn":"id_tutor","lookupValue":"={{ $json.id_tutor }}"}]},"options":{}},"id":"2d299a6b-fc65-4830-98d5-b7b952263711","name":"Sheets - Get Tutorias Tutor","type":"n8n-nodes-base.googleSheets","typeVersion":4.5,"position":[-752,48],"alwaysOutputData":true,"credentials":{"googleSheetsOAuth2Api":{"id":"zIS9uzBUTY2kZjIZ","name":"Google Sheets account"}}},
+    {"parameters":{"jsCode":"const activas = ['Asignada','Confirmada'];\nconst rows = $input.all().map(i => i.json).filter(r => r.id_tutor && activas.includes(r.estado));\nlet mensaje;\nif (rows.length === 0) {\n  mensaje = 'No tienes tutorias proximas en tu agenda.';\n} else {\n  const ordenadas = [...rows].sort((a,b) => new Date(a.fecha+'T'+a.hora) - new Date(b.fecha+'T'+b.hora));\n  const lista = ordenadas.map(t => `- ${t.fecha} ${t.hora} - ${t.materia} (${t.estado})`).join('\\n');\n  mensaje = 'Tu agenda:\\n\\n' + lista;\n}\nreturn [{ json: {\n  telegram_user: $('Trigger - Agenda Tutor').first().json.telegram_user,\n  mensaje\n}}];"},"id":"3ca008f1-786d-40c2-ad7c-429ff95653ea","name":"Code - Formatear Agenda","type":"n8n-nodes-base.code","typeVersion":2,"position":[-528,48]},
+    {"parameters":{"inputSource":"passthrough"},"id":"66b0eb8e-e663-4962-b155-2d26114ed56f","name":"Trigger - Agenda Tutor","type":"n8n-nodes-base.executeWorkflowTrigger","typeVersion":1.1,"position":[-1200,48]},
+    {"parameters":{"workflowId":{"__rl":true,"mode":"id","value":"ucriG0ZjEfB7QzRC"},"workflowInputs":{"mappingMode":"defineBelow","matchingColumns":[],"schema":[],"value":{"canal":"telegram_tutor","destinatario":"={{ $json.telegram_user }}","mensaje":"={{ $json.mensaje }}"}},"mode":"each","options":{}},"id":"641a4558-1302-447d-bdbb-ff374158efd3","name":"Sub-workflow - Notificar Agenda","type":"n8n-nodes-base.executeWorkflow","typeVersion":1.2,"position":[-304,48]}
+  ],
+  "connections": {
+    "Sheets - Get Tutor": {"main": [[{"node":"Sheets - Get Tutorias Tutor","type":"main","index":0}]]},
+    "Sheets - Get Tutorias Tutor": {"main": [[{"node":"Code - Formatear Agenda","type":"main","index":0}]]},
+    "Trigger - Agenda Tutor": {"main": [[{"node":"Sheets - Get Tutor","type":"main","index":0}]]},
+    "Code - Formatear Agenda": {"main": [[{"node":"Sub-workflow - Notificar Agenda","type":"main","index":0}]]}
+  },
+  "pinData": {},
+  "settings": {"executionOrder": "v1", "binaryMode": "separate"},
+  "active": false
+}

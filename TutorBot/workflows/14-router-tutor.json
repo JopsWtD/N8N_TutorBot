@@ -1,0 +1,23 @@
+{
+  "name": "14 - Tutor - Router (entrada)",
+  "nodes": [
+    {"parameters":{"updates":["message","callback_query"],"additionalFields":{}},"id":"564c54fe-e8fb-4158-8c21-13ea2e87655b","name":"Telegram Trigger","type":"n8n-nodes-base.telegramTrigger","typeVersion":1.1,"position":[-480,96],"credentials":{"telegramApi":{"id":"YQxsBz0TkC5XGbQx","name":"Tutor_Notebot Credentials"}}},
+    {"parameters":{"conditions":{"options":{"caseSensitive":true,"leftValue":"","typeValidation":"loose","version":1},"combinator":"and","conditions":[{"leftValue":"={{ $json.callback_query !== undefined && $json.callback_query !== null }}","operator":{"operation":"true","singleValue":true,"type":"boolean"},"rightValue":""}]},"options":{}},"id":"2ba8b1f8-c7bb-46b1-ae0b-3d62c47bcb6d","name":"IF - Es Callback","type":"n8n-nodes-base.if","typeVersion":2,"position":[-256,96]},
+    {"parameters":{"mode":"runOnceForEachItem","jsCode":"const data = $json.callback_query.data || '';\nconst [accion, id_tutoria] = data.split(':');\nreturn { json: {\n  telegram_user: String($json.callback_query.from.id),\n  accion,\n  id_tutoria\n}};"},"id":"de63a732-98b9-4a88-8833-418aaa1dc5d9","name":"Code - Parsear Callback","type":"n8n-nodes-base.code","typeVersion":2,"position":[-32,0]},
+    {"parameters":{"mode":"runOnceForEachItem","jsCode":"return { json: {\n  telegram_user: String($json.message.chat.id),\n  mensaje: ($json.message.text || '').toLowerCase()\n}};"},"id":"da8e46a2-84c3-4a4a-991d-e061d853d9c4","name":"Code - Extraer Mensaje","type":"n8n-nodes-base.code","typeVersion":2,"position":[-32,192]},
+    {"parameters":{"conditions":{"options":{"caseSensitive":true,"leftValue":"","typeValidation":"strict","version":1},"conditions":[{"leftValue":"={{ $json.mensaje }}","rightValue":"agenda","operator":{"type":"string","operation":"contains"},"id":"b1f0d0b4-9171-4e4b-812e-df008a8afa9a"}],"combinator":"and"},"options":{}},"id":"d4f3e684-cb11-40b4-bd33-3381fb236612","name":"IF - Pide Agenda","type":"n8n-nodes-base.if","typeVersion":2,"position":[192,192]},
+    {"parameters":{"workflowId":{"__rl":true,"mode":"id","value":"aJcFwOUoKRL9uUv8"},"workflowInputs":{"mappingMode":"defineBelow","matchingColumns":[],"schema":[],"value":{"accion":"={{ $json.accion }}","id_tutoria":"={{ $json.id_tutoria }}","telegram_user":"={{ $json.telegram_user }}"}},"mode":"each","options":{}},"id":"01587be1-3169-4f99-9bf4-20bdbd683676","name":"Sub-workflow - Solicitudes del Tutor","type":"n8n-nodes-base.executeWorkflow","typeVersion":1.2,"position":[192,0]},
+    {"parameters":{"workflowId":{"__rl":true,"mode":"id","value":"ZpKFxxHRo5wYsYEk"},"workflowInputs":{"mappingMode":"defineBelow","matchingColumns":[],"schema":[],"value":{"telegram_user":"={{ $json.telegram_user }}"}},"mode":"each","options":{}},"id":"acbadb86-6be9-4eaa-aa77-f4e24b334af8","name":"Sub-workflow - Agenda del Tutor","type":"n8n-nodes-base.executeWorkflow","typeVersion":1.2,"position":[416,96]},
+    {"parameters":{"workflowId":{"__rl":true,"mode":"id","value":"ucriG0ZjEfB7QzRC"},"workflowInputs":{"mappingMode":"defineBelow","matchingColumns":[],"schema":[],"value":{"canal":"telegram_tutor","destinatario":"={{ $json.telegram_user }}","mensaje":"Hola! Esto es lo que puedes hacer aqui:\n\n- Cuando llegue una solicitud nueva, te va a aparecer con botones para Aceptar o Rechazar directamente.\n- Escribe \"agenda\" para ver tus proximas tutorias confirmadas."}},"mode":"each","options":{}},"id":"f691635f-d32a-4548-85dd-7d0a0f180547","name":"Sub-workflow - Notificar Ayuda","type":"n8n-nodes-base.executeWorkflow","typeVersion":1.2,"position":[416,288]}
+  ],
+  "connections": {
+    "Telegram Trigger": {"main": [[{"node":"IF - Es Callback","type":"main","index":0}]]},
+    "IF - Es Callback": {"main": [[{"node":"Code - Parsear Callback","type":"main","index":0}],[{"node":"Code - Extraer Mensaje","type":"main","index":0}]]},
+    "Code - Extraer Mensaje": {"main": [[{"node":"IF - Pide Agenda","type":"main","index":0}]]},
+    "IF - Pide Agenda": {"main": [[{"node":"Sub-workflow - Agenda del Tutor","type":"main","index":0}],[{"node":"Sub-workflow - Notificar Ayuda","type":"main","index":0}]]},
+    "Code - Parsear Callback": {"main": [[{"node":"Sub-workflow - Solicitudes del Tutor","type":"main","index":0}]]}
+  },
+  "pinData": {},
+  "settings": {"executionOrder": "v1", "binaryMode": "separate"},
+  "active": false
+}

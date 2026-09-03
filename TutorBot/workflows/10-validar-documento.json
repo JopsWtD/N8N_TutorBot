@@ -1,0 +1,15 @@
+{
+  "name": "10 - Estudiante - Validar Documento",
+  "nodes": [
+    {"id":"4c1db7a8-9606-494a-9e06-062147ca9692","name":"Webhook","type":"n8n-nodes-base.webhook","typeVersion":2,"position":[-400,0],"parameters":{"httpMethod":"POST","path":"validar-documento","responseMode":"responseNode","options":{}}},
+    {"id":"be881f0a-309d-4b5c-b090-c4817e65b973","name":"Code - Validar Documento","type":"n8n-nodes-base.code","typeVersion":2,"position":[-160,0],"parameters":{"mode":"runOnceForEachItem","language":"javaScript","jsCode":"const texto = String(($json.body.datos_parciales && $json.body.datos_parciales.pedir_documento) || $json.body.mensaje || '').trim();\nconst valido = /^\\d{6,15}$/.test(texto);\nreturn { json: { valido, valor: valido ? texto : null } };"}},
+    {"id":"71ad0610-1986-43db-a7e6-c449e060651c","name":"Respond","type":"n8n-nodes-base.respondToWebhook","typeVersion":1.1,"position":[80,0],"parameters":{"respondWith":"json","responseBody":"={{ { \"valido\": $json.valido, \"valor\": $json.valor } }}","options":{}}}
+  ],
+  "connections": {
+    "Webhook": {"main": [[{"node":"Code - Validar Documento","type":"main","index":0}]]},
+    "Code - Validar Documento": {"main": [[{"node":"Respond","type":"main","index":0}]]}
+  },
+  "pinData": {},
+  "settings": {"executionOrder": "v1"},
+  "active": false
+}
