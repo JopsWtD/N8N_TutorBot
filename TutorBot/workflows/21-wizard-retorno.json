@@ -1,0 +1,679 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "inputSource": "passthrough"
+            },
+            "id": "b8e1dd04-8563-497f-babb-f0a5a0ea3105",
+            "name": "Trigger - Retorno Wizard",
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1.1,
+            "position": [
+                -1008,
+                -32
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "combinator": "and",
+                    "conditions": [
+                        {
+                            "id": "c-flujo",
+                            "leftValue": "={{ !!($json.datos_parciales && $json.datos_parciales.nombre) }}",
+                            "operator": {
+                                "operation": "false",
+                                "singleValue": true,
+                                "type": "boolean"
+                            },
+                            "rightValue": ""
+                        }
+                    ],
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "loose",
+                        "version": 1
+                    }
+                },
+                "options": {
+                    "looseTypeValidation": true
+                }
+            },
+            "id": "9a8b6ce0-3ed5-4012-b0eb-56e2f0700869",
+            "name": "IF - Es Identificar",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                -784,
+                -32
+            ]
+        },
+        {
+            "parameters": {
+                "mode": "runOnceForEachItem",
+                "jsCode": "const dp = $json.datos_parciales || {};\nreturn { json: {\n  telegram_user: $json.telegram_user,\n  documento: dp.documento_activo || dp.documento || null\n}};"
+            },
+            "id": "0ee0dd1f-a0c6-41f6-8558-99a3cfda45b0",
+            "name": "Code - Extraer Documento Activo",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -112,
+                -224
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "combinator": "and",
+                    "conditions": [
+                        {
+                            "id": "c-ident",
+                            "leftValue": "={{ $json.documento }}",
+                            "operator": {
+                                "operation": "notEmpty",
+                                "singleValue": true,
+                                "type": "string"
+                            },
+                            "rightValue": ""
+                        }
+                    ],
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "loose",
+                        "version": 1
+                    }
+                },
+                "options": {
+                    "looseTypeValidation": true
+                }
+            },
+            "id": "356273fb-0eb5-47a8-9682-18784d88ecaa",
+            "name": "IF - Se Identifico",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                112,
+                -224
+            ]
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "70N4sbsXHs3QBc1b"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [],
+                    "schema": [],
+                    "value": {
+                        "accion": "guardar_documento",
+                        "documento": "={{ $json.documento }}",
+                        "telegram_user": "={{ $json.telegram_user }}"
+                    }
+                },
+                "mode": "each",
+                "options": {}
+            },
+            "id": "4b6f0995-249d-41b3-b3da-ac48e39a449d",
+            "name": "Sub-workflow - Guardar Documento Activo",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1.2,
+            "position": [
+                336,
+                -304
+            ]
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "ucriG0ZjEfB7QzRC"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [],
+                    "schema": [],
+                    "value": {
+                        "canal": "telegram_estudiante",
+                        "destinatario": "={{ $('Code - Extraer Documento Activo').first().json.telegram_user }}",
+                        "mensaje": "Listo, ya te identificaste.\n\nEscribeme lo que necesites:\n- Solicitar una tutoria\n- Ver tus tutorias activas\n- Cancelar una tutoria\n- Ver tus puntos acumulados\n\nCuando termines de usar el bot, escribe \"cerrar sesion\"."
+                    }
+                },
+                "mode": "each",
+                "options": {}
+            },
+            "id": "10465f61-4b23-44c2-8bd7-cea939667f89",
+            "name": "Sub-workflow - Notificar Identificado",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1.2,
+            "position": [
+                784,
+                -304
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "append",
+                "documentId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "1PR6LqHZ2gpEFlrfp_CQyMcbogXnFCsfTeBVRdWtqKH4"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "gid=0"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "canBeUsedToMatch": true,
+                            "displayName": "documento",
+                            "id": "documento",
+                            "type": "string"
+                        },
+                        {
+                            "canBeUsedToMatch": true,
+                            "displayName": "nombre",
+                            "id": "nombre",
+                            "type": "string"
+                        },
+                        {
+                            "canBeUsedToMatch": true,
+                            "displayName": "telegram_user",
+                            "id": "telegram_user",
+                            "type": "string"
+                        },
+                        {
+                            "canBeUsedToMatch": true,
+                            "displayName": "registrado",
+                            "id": "registrado",
+                            "type": "string"
+                        },
+                        {
+                            "canBeUsedToMatch": true,
+                            "displayName": "email",
+                            "id": "email",
+                            "type": "string"
+                        }
+                    ],
+                    "value": {
+                        "documento": "={{ $json.datos_parciales.documento }}",
+                        "email": "={{ $json.datos_parciales.email }}",
+                        "nombre": "={{ $json.datos_parciales.nombre }}",
+                        "registrado": "true",
+                        "telegram_user": "={{ $json.telegram_user }}"
+                    }
+                },
+                "options": {}
+            },
+            "id": "5741a7af-a04c-4907-a1fd-1d93a6cbc3d8",
+            "name": "Sheets - Append Estudiante",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.7,
+            "position": [
+                112,
+                16
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "zIS9uzBUTY2kZjIZ",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "70N4sbsXHs3QBc1b"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [],
+                    "schema": [],
+                    "value": {
+                        "accion": "limpiar",
+                        "telegram_user": "={{ $json.telegram_user }}"
+                    }
+                },
+                "mode": "each",
+                "options": {}
+            },
+            "id": "b825bbfd-d214-4d37-8978-80fa0705209c",
+            "name": "Sub-workflow - Sesion Limpiar",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1.2,
+            "position": [
+                336,
+                16
+            ]
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "70N4sbsXHs3QBc1b"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [],
+                    "schema": [],
+                    "value": {
+                        "accion": "guardar_documento",
+                        "documento": "={{ $('Sheets - Append Estudiante').item.json.documento }}",
+                        "telegram_user": "={{ $('Sheets - Append Estudiante').item.json.telegram_user }}"
+                    }
+                },
+                "mode": "each",
+                "options": {}
+            },
+            "id": "9fe3961c-a279-40c9-8c3d-974019638424",
+            "name": "Sub-workflow - Auto Identificar Tras Registro",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1.2,
+            "position": [
+                560,
+                16
+            ]
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "ucriG0ZjEfB7QzRC"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [],
+                    "schema": [],
+                    "value": {
+                        "canal": "telegram_estudiante",
+                        "destinatario": "={{ $('Sheets - Append Estudiante').item.json.telegram_user }}",
+                        "mensaje": "¡Registro exitoso! Ya quedaste identificado.\n\nEscribeme lo que necesites:\n- Solicitar una tutoria\n- Ver tus tutorias activas\n- Cancelar una tutoria\n- Ver tus puntos acumulados\n\nCuando termines de usar el bot, escribe \"cerrar sesion\"."
+                    }
+                },
+                "mode": "each",
+                "options": {}
+            },
+            "id": "81fafa4e-1ebd-4df0-acaa-6d5857f43e8e",
+            "name": "Sub-workflow - Notificar Registro Exitoso",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1.2,
+            "position": [
+                784,
+                16
+            ]
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "t1",
+                            "name": "ok",
+                            "type": "boolean",
+                            "value": true
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "8244e3d1-1a7d-49b2-8a92-54545cecc81b",
+            "name": "Terminal",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                1008,
+                -64
+            ]
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "70N4sbsXHs3QBc1b"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [],
+                    "schema": [],
+                    "value": {
+                        "accion": "limpiar",
+                        "telegram_user": "={{ $('Code - Extraer Documento Activo').first().json.telegram_user }}"
+                    }
+                },
+                "mode": "each",
+                "options": {}
+            },
+            "id": "489285d9-00c2-47c6-bdc9-56bcb22ac87f",
+            "name": "Sub-workflow - Limpiar Sesion Wizard",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1.2,
+            "position": [
+                560,
+                -304
+            ]
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "1PR6LqHZ2gpEFlrfp_CQyMcbogXnFCsfTeBVRdWtqKH4"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "gid=0"
+                },
+                "filtersUI": {
+                    "values": [
+                        {
+                            "lookupColumn": "documento",
+                            "lookupValue": "={{ $json.datos_parciales.documento }}"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "bfba4be9-7e76-4849-b0cf-bd278b24c646",
+            "name": "Sheets - Verificar Duplicado",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.7,
+            "position": [
+                -560,
+                112
+            ],
+            "alwaysOutputData": true,
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "zIS9uzBUTY2kZjIZ",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "const filas = $input.all().map(i => i.json).filter(f => f.documento);\nconst t = $('Trigger - Retorno Wizard').first().json;\nreturn [{ json: {\n  yaExiste: filas.length > 0,\n  telegram_user: t.telegram_user,\n  datos_parciales: t.datos_parciales\n}}];"
+            },
+            "id": "78205487-fd44-4b28-b1d2-0699c2466e61",
+            "name": "Code - Chequear Duplicado",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -336,
+                112
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "combinator": "and",
+                    "conditions": [
+                        {
+                            "id": "c-dup",
+                            "leftValue": "={{ $json.yaExiste }}",
+                            "operator": {
+                                "operation": "true",
+                                "singleValue": true,
+                                "type": "boolean"
+                            },
+                            "rightValue": ""
+                        }
+                    ],
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 1
+                    }
+                },
+                "options": {}
+            },
+            "id": "823afd6d-f5f9-4931-bdbf-42a4ee556313",
+            "name": "IF - Ya Existe",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                -112,
+                112
+            ]
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "ucriG0ZjEfB7QzRC"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [],
+                    "schema": [],
+                    "value": {
+                        "canal": "telegram_estudiante",
+                        "destinatario": "={{ $json.telegram_user }}",
+                        "mensaje": "Ese documento ya esta registrado, no se creo un registro nuevo. Escribe \"cerrar sesion\" y vuelve a identificarte con ese documento."
+                    }
+                },
+                "mode": "each",
+                "options": {}
+            },
+            "id": "9527c1b2-6674-47bd-be67-c1f1d7e46715",
+            "name": "Sub-workflow - Avisar Duplicado",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1.2,
+            "position": [
+                784,
+                208
+            ]
+        }
+    ],
+    "connections": {
+        "Trigger - Retorno Wizard": {
+            "main": [
+                [
+                    {
+                        "node": "IF - Es Identificar",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "IF - Es Identificar": {
+            "main": [
+                [
+                    {
+                        "node": "Code - Extraer Documento Activo",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Sheets - Verificar Duplicado",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Code - Extraer Documento Activo": {
+            "main": [
+                [
+                    {
+                        "node": "IF - Se Identifico",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "IF - Se Identifico": {
+            "main": [
+                [
+                    {
+                        "node": "Sub-workflow - Guardar Documento Activo",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Terminal",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Sub-workflow - Guardar Documento Activo": {
+            "main": [
+                [
+                    {
+                        "node": "Sub-workflow - Limpiar Sesion Wizard",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Sub-workflow - Notificar Identificado": {
+            "main": [
+                [
+                    {
+                        "node": "Terminal",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Sheets - Append Estudiante": {
+            "main": [
+                [
+                    {
+                        "node": "Sub-workflow - Sesion Limpiar",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Sub-workflow - Sesion Limpiar": {
+            "main": [
+                [
+                    {
+                        "node": "Sub-workflow - Auto Identificar Tras Registro",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Sub-workflow - Auto Identificar Tras Registro": {
+            "main": [
+                [
+                    {
+                        "node": "Sub-workflow - Notificar Registro Exitoso",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Sub-workflow - Notificar Registro Exitoso": {
+            "main": [
+                [
+                    {
+                        "node": "Terminal",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Sub-workflow - Limpiar Sesion Wizard": {
+            "main": [
+                [
+                    {
+                        "node": "Sub-workflow - Notificar Identificado",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Sheets - Verificar Duplicado": {
+            "main": [
+                [
+                    {
+                        "node": "Code - Chequear Duplicado",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Code - Chequear Duplicado": {
+            "main": [
+                [
+                    {
+                        "node": "IF - Ya Existe",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "IF - Ya Existe": {
+            "main": [
+                [
+                    {
+                        "node": "Sub-workflow - Avisar Duplicado",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Sheets - Append Estudiante",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Sub-workflow - Avisar Duplicado": {
+            "main": [
+                [
+                    {
+                        "node": "Terminal",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "meta": {
+        "aiBuilderAssisted": true,
+        "builderVariant": "mcp",
+        "instanceId": "d896f49cabf4ef1adeeec4cb8898ffa41a6e4ce6b4820188881e37855dd2134b"
+    }
+}

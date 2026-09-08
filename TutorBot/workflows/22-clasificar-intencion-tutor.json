@@ -1,0 +1,136 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "inputSource": "passthrough"
+            },
+            "id": "fb01086f-4eee-4f53-a763-360344695350",
+            "name": "Trigger - Clasificador Tutor",
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1.1,
+            "position": [
+                -800,
+                0
+            ]
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "={{ $json.mensaje }}",
+                "hasOutputParser": true,
+                "options": {
+                    "systemMessage": "Eres un clasificador de intenciones para el bot de tutores de TutorBot. No tienes herramientas conectadas ni debes intentar usar ninguna.\n\nClasifica el mensaje del tutor en UNA sola de estas categorias:\n- ver_agenda: quiere ver sus tutorias confirmadas o proximas (sinonimos: agenda, mis tutorias, que tengo pendiente, mi horario, mis clases)\n- finalizar_tutoria: quiere marcar una tutoria como terminada y registrar si el estudiante asistio (sinonimos: finalizar, terminar, marcar como completada, cerrar tutoria, ya di la clase, la tutoria termino)\n- desconocido: no encaja claramente en ninguna de las anteriores\n\nEjemplos:\n\"agenda\" -> ver_agenda\n\"que tengo hoy?\" -> ver_agenda\n\"finalizar\" -> finalizar_tutoria\n\"ya termine la clase con el estudiante\" -> finalizar_tutoria\n\"como estas\" -> desconocido\n\nResponde unicamente con el JSON solicitado, sin texto adicional."
+                }
+            },
+            "id": "3688774e-4acd-45f1-914f-44afb9b31be1",
+            "name": "Agente - Clasificar Intencion Tutor",
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "typeVersion": 3.1,
+            "position": [
+                -560,
+                0
+            ]
+        },
+        {
+            "parameters": {
+                "modelName": "models/gemini-3.1-flash-lite",
+                "options": {
+                    "temperature": 0.1
+                }
+            },
+            "id": "1057dd8a-92eb-4297-8706-a4e30f428587",
+            "name": "Gemini Model",
+            "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+            "typeVersion": 1.1,
+            "position": [
+                -560,
+                208
+            ],
+            "credentials": {
+                "googlePalmApi": {
+                    "id": "",
+                    "name": "Google Gemini(PaLM) Api account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsonSchemaExample": "{ \"intencion\": \"ver_agenda\", \"confianza\": 0.95 }"
+            },
+            "id": "a158e8f5-6b52-4a39-9817-bd7a04939f43",
+            "name": "Structured Output Parser",
+            "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+            "typeVersion": 1.3,
+            "position": [
+                -400,
+                208
+            ]
+        },
+        {
+            "parameters": {
+                "mode": "runOnceForEachItem",
+                "jsCode": "const salida = $json.output || {};\nconst intencion = (salida.confianza >= 0.7) ? salida.intencion : 'desconocido';\nreturn { json: {\n  intencion,\n  telegram_user: $('Trigger - Clasificador Tutor').first().json.telegram_user\n}};"
+            },
+            "id": "58893aa8-cc85-46f4-ab35-2f02d3f545a0",
+            "name": "Code - Normalizar Intencion Tutor",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -240,
+                0
+            ]
+        }
+    ],
+    "connections": {
+        "Trigger - Clasificador Tutor": {
+            "main": [
+                [
+                    {
+                        "node": "Agente - Clasificar Intencion Tutor",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Agente - Clasificar Intencion Tutor": {
+            "main": [
+                [
+                    {
+                        "node": "Code - Normalizar Intencion Tutor",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Gemini Model": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "Agente - Clasificar Intencion Tutor",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Structured Output Parser": {
+            "ai_outputParser": [
+                [
+                    {
+                        "node": "Agente - Clasificar Intencion Tutor",
+                        "type": "ai_outputParser",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "meta": {
+        "aiBuilderAssisted": true,
+        "builderVariant": "mcp",
+        "instanceId": "d896f49cabf4ef1adeeec4cb8898ffa41a6e4ce6b4820188881e37855dd2134b"
+    }
+}

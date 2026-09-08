@@ -1,0 +1,813 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "1Qd9MRV9Nz_TardN4lOQjTHaFKWZewGtgejMuFdWFEEQ",
+                    "mode": "list",
+                    "cachedResultName": "TUTORES",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Qd9MRV9Nz_TardN4lOQjTHaFKWZewGtgejMuFdWFEEQ/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "gid=0",
+                    "mode": "list",
+                    "cachedResultName": "Hoja 1",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Qd9MRV9Nz_TardN4lOQjTHaFKWZewGtgejMuFdWFEEQ/edit#gid=0"
+                },
+                "filtersUI": {
+                    "values": [
+                        {
+                            "lookupColumn": "telegram_user",
+                            "lookupValue": "={{ $json.formQueryParameters.telegram_user }}"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "9a3d4849-8a1a-4971-b96a-3b7f505f66e8",
+            "name": "Sheets - Get Tutor",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.5,
+            "position": [
+                256,
+                -208
+            ],
+            "retryOnFail": true,
+            "maxTries": 3,
+            "waitBetweenTries": 2000,
+            "alwaysOutputData": true,
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "zIS9uzBUTY2kZjIZ",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "value": "10ZfjTJsPj0M5NJWTzbNYAFG-r8bWXLbmXxIQrz4DwmE",
+                    "mode": "list",
+                    "cachedResultName": "TUTORIAS",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10ZfjTJsPj0M5NJWTzbNYAFG-r8bWXLbmXxIQrz4DwmE/edit?usp=drivesdk"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "gid=0",
+                    "mode": "list",
+                    "cachedResultName": "Hoja 1",
+                    "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10ZfjTJsPj0M5NJWTzbNYAFG-r8bWXLbmXxIQrz4DwmE/edit#gid=0"
+                },
+                "filtersUI": {
+                    "values": [
+                        {
+                            "lookupColumn": "id_tutor",
+                            "lookupValue": "={{ $json.id_tutor }}"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "3fa99952-f107-4127-ae76-8bd3b74bf8bb",
+            "name": "Sheets - Get Tutorias Tutor",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.5,
+            "position": [
+                480,
+                -208
+            ],
+            "alwaysOutputData": true,
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "zIS9uzBUTY2kZjIZ",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "const disponibles = ['Confirmada'];\nconst rows = $input.all().map(i => i.json).filter(r => r.id_tutor && disponibles.includes(r.estado));\nconst opciones = rows.map(t => ({ option: `${t.materia} - ${t.fecha} ${t.hora} - Estudiante: ${t.id_estudiante} (${t.id_tutoria})` }));\nreturn [{ json: {\n  telegram_user: $('On form submission').first().json.formQueryParameters.telegram_user,\n  opcionesTutoria: opciones,\n  hayTutorias: opciones.length > 0\n}}];"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                704,
+                -208
+            ],
+            "id": "83fde2b6-f559-465b-8ece-596ffb2059a3",
+            "name": "Code in JavaScript"
+        },
+        {
+            "parameters": {
+                "formTitle": "Finalizar tutorías",
+                "formDescription": "Aquí puedes finalizar las tutorías",
+                "formFields": {
+                    "values": []
+                },
+                "options": {
+                    "buttonLabel": "Ver mis tutorías asignadas",
+                    "path": "finalizar-tutoria"
+                }
+            },
+            "type": "n8n-nodes-base.formTrigger",
+            "typeVersion": 2.6,
+            "position": [
+                32,
+                -208
+            ],
+            "id": "9460ee56-e6d0-4244-961f-0816d0d66aa2",
+            "name": "On form submission",
+            "webhookId": "9a4e0937-2bf4-40f6-8e84-831844e87b4a"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 3
+                    },
+                    "conditions": [
+                        {
+                            "id": "c-hay",
+                            "leftValue": "={{ $json.hayTutorias }}",
+                            "operator": {
+                                "operation": "true",
+                                "singleValue": true,
+                                "type": "boolean"
+                            },
+                            "rightValue": ""
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.3,
+            "position": [
+                928,
+                -208
+            ],
+            "id": "cbedac7c-9eee-462e-9383-1a2458a85c26",
+            "name": "If"
+        },
+        {
+            "parameters": {
+                "operation": "completion",
+                "completionTitle": "Sin tutorias por finalizar",
+                "completionMessage": "No tienes tutorias confirmadas pendientes de finalizar en este momento.",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.form",
+            "typeVersion": 2.5,
+            "position": [
+                1152,
+                -112
+            ],
+            "id": "54827299-6a37-4e18-8c74-3dd0ec2ec4da",
+            "name": "Form",
+            "webhookId": "1f3abf67-ca70-429e-82c8-3d9743d58ddf"
+        },
+        {
+            "parameters": {
+                "defineForm": "json",
+                "jsonOutput": "={{ [ { fieldLabel: 'Tutoria', fieldType: 'dropdown', fieldOptions: { values: $json.opcionesTutoria }, requiredField: true } ] }}",
+                "options": {
+                    "formTitle": "Elige la tutoria a finalizar",
+                    "buttonLabel": "Siguiente"
+                }
+            },
+            "id": "935cb437-95b1-41b9-bf9b-029d1d965fad",
+            "name": "Form - Elegir Tutoria",
+            "type": "n8n-nodes-base.form",
+            "typeVersion": 2.5,
+            "position": [
+                1152,
+                -304
+            ],
+            "webhookId": "740ffc1f-dac6-425e-9282-bc0ee1d0f101"
+        },
+        {
+            "parameters": {
+                "mode": "runOnceForEachItem",
+                "jsCode": "const seleccion = $json['Tutoria'] || '';\nconst match = seleccion.match(/\\(([^)]+)\\)$/);\nconst id_tutoria = match ? match[1] : null;\nconst tutorias = $('Sheets - Get Tutorias Tutor').all().map(i => i.json);\nconst tutoria = tutorias.find(t => t.id_tutoria === id_tutoria);\nreturn { json: {\n  telegram_user: $('Sheets - Get Tutor').first().json.telegram_user,\n  id_tutoria,\n  tutoria\n}};"
+            },
+            "id": "eac0881b-ff2c-4056-ac2d-b295ff8f3101",
+            "name": "Code - Capturar Tutoria",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1376,
+                -304
+            ]
+        },
+        {
+            "parameters": {
+                "defineForm": "json",
+                "jsonOutput": "={{ [ { fieldLabel: 'El estudiante asistio', fieldType: 'dropdown', fieldOptions: { values: [{ option: 'Si' }, { option: 'No' }] }, requiredField: true } ] }}",
+                "options": {
+                    "formTitle": "Asistencia",
+                    "buttonLabel": "Finalizar tutoria"
+                }
+            },
+            "id": "3de310b4-c3ba-4b43-b959-5a479c305593",
+            "name": "Form - Asistio",
+            "type": "n8n-nodes-base.form",
+            "typeVersion": 2.5,
+            "position": [
+                2048,
+                -208
+            ],
+            "webhookId": "ab672ec7-9cf9-42b0-8633-c5e5906319e4"
+        },
+        {
+            "parameters": {
+                "mode": "runOnceForEachItem",
+                "jsCode": "const PUNTOS_ASISTIO = 10;\nconst PUNTOS_NO_ASISTIO = -5;\nconst asistio = $json['El estudiante asistio'] === 'Si';\nconst delta = asistio ? PUNTOS_ASISTIO : PUNTOS_NO_ASISTIO;\nconst prev = $('Code - Capturar Tutoria').first().json;\nreturn { json: {\n  telegram_user: prev.telegram_user,\n  id_tutoria: prev.id_tutoria,\n  tutoria: prev.tutoria,\n  asistio: asistio ? 'Si' : 'No',\n  delta\n}};"
+            },
+            "id": "dbb76d50-bcf9-43fa-81b0-19c7f6bf7457",
+            "name": "Code - Calcular Puntos",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                2272,
+                -208
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "update",
+                "documentId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "10ZfjTJsPj0M5NJWTzbNYAFG-r8bWXLbmXxIQrz4DwmE"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "gid=0"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [
+                        "id_tutoria"
+                    ],
+                    "schema": [
+                        {
+                            "canBeUsedToMatch": true,
+                            "displayName": "id_tutoria",
+                            "id": "id_tutoria",
+                            "type": "string"
+                        },
+                        {
+                            "canBeUsedToMatch": true,
+                            "displayName": "estado",
+                            "id": "estado",
+                            "type": "string"
+                        },
+                        {
+                            "canBeUsedToMatch": true,
+                            "displayName": "asistio",
+                            "id": "asistio",
+                            "type": "string"
+                        }
+                    ],
+                    "value": {
+                        "asistio": "={{ $json.asistio }}",
+                        "estado": "Finalizada",
+                        "id_tutoria": "={{ $json.id_tutoria }}"
+                    }
+                },
+                "options": {}
+            },
+            "id": "721b18bf-ee14-492e-9bb9-352675e53175",
+            "name": "Sheets - Update Tutoria Finalizada",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.7,
+            "position": [
+                2496,
+                -208
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "zIS9uzBUTY2kZjIZ",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "1PR6LqHZ2gpEFlrfp_CQyMcbogXnFCsfTeBVRdWtqKH4"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "gid=0"
+                },
+                "filtersUI": {
+                    "values": [
+                        {
+                            "lookupColumn": "documento",
+                            "lookupValue": "={{ $('Code - Calcular Puntos').first().json.tutoria.documento }}"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "c203fb3f-a6d6-416e-8ccb-a523366e7bf4",
+            "name": "Sheets - Get Estudiante Para Puntos",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.7,
+            "position": [
+                2720,
+                -208
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "zIS9uzBUTY2kZjIZ",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "const filas = $input.all().map(i => i.json).filter(f => f.documento);\nconst calc = $('Code - Calcular Puntos').first().json;\nif (filas.length === 0) {\n  return [{ json: { ...calc, huboEstudiante: false } }];\n}\nconst estudiante = filas[0];\nconst puntosPrevios = Number(estudiante.puntos) || 0;\nconst puntosNuevos = puntosPrevios + calc.delta;\nreturn [{ json: {\n  ...calc,\n  huboEstudiante: true,\n  documento: estudiante.documento,\n  nombre: estudiante.nombre,\n  telegram_user_estudiante: estudiante.telegram_user,\n  puntos: puntosNuevos\n}}];"
+            },
+            "id": "dd7c5fb0-4b12-494e-ab48-9095b3661818",
+            "name": "Code - Sumar Puntos",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                2944,
+                -208
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "combinator": "and",
+                    "conditions": [
+                        {
+                            "leftValue": "={{ $json.huboEstudiante }}",
+                            "operator": {
+                                "operation": "true",
+                                "singleValue": true,
+                                "type": "boolean"
+                            },
+                            "rightValue": ""
+                        }
+                    ],
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 1
+                    }
+                },
+                "options": {}
+            },
+            "id": "7ef33c2f-909c-43b3-93f2-ee3c31f35fae",
+            "name": "IF - Hubo Estudiante",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [
+                3168,
+                -208
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "update",
+                "documentId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "1PR6LqHZ2gpEFlrfp_CQyMcbogXnFCsfTeBVRdWtqKH4"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "gid=0"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [
+                        "documento"
+                    ],
+                    "schema": [
+                        {
+                            "canBeUsedToMatch": true,
+                            "displayName": "documento",
+                            "id": "documento",
+                            "type": "string"
+                        },
+                        {
+                            "canBeUsedToMatch": true,
+                            "displayName": "puntos",
+                            "id": "puntos",
+                            "type": "string"
+                        }
+                    ],
+                    "value": {
+                        "documento": "={{ $json.documento }}",
+                        "puntos": "={{ $json.puntos }}"
+                    }
+                },
+                "options": {}
+            },
+            "id": "b543adb5-1824-4698-9467-071d8d153ed9",
+            "name": "Sheets - Update Puntos",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.7,
+            "position": [
+                3392,
+                -304
+            ],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "zIS9uzBUTY2kZjIZ",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "ucriG0ZjEfB7QzRC"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [],
+                    "schema": [],
+                    "value": {
+                        "canal": "telegram_estudiante",
+                        "destinatario": "={{ $('Code - Sumar Puntos').first().json.telegram_user_estudiante }}",
+                        "mensaje": "={{ 'Hola ' + $('Code - Sumar Puntos').first().json.nombre + ', actualmente tienes 🏆 ' + $json.puntos + ' puntos acumulados por tu constancia academica. ¡Sigue asistiendo a tus tutorias!' }}"
+                    }
+                },
+                "mode": "each",
+                "options": {}
+            },
+            "id": "3543afd5-bf3c-4d12-8cbc-e91ccdfbe5ed",
+            "name": "Sub-workflow - Notificar Estudiante Puntos",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1.2,
+            "position": [
+                3616,
+                -304
+            ]
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "ucriG0ZjEfB7QzRC"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [],
+                    "schema": [],
+                    "value": {
+                        "canal": "telegram_tutor",
+                        "destinatario": "={{ $('Code - Sumar Puntos').first().json.telegram_user }}",
+                        "mensaje": "Tutoria marcada como finalizada. Gracias por registrar la asistencia."
+                    }
+                },
+                "mode": "each",
+                "options": {}
+            },
+            "id": "f0bb5816-0482-464b-9e46-0ee607079f90",
+            "name": "Sub-workflow - Notificar Tutor Finalizado",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1.2,
+            "position": [
+                3616,
+                -112
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "completion",
+                "completionTitle": "Tutoria finalizada",
+                "completionMessage": "Listo, la tutoria quedo marcada como finalizada.",
+                "options": {}
+            },
+            "id": "a2896ac4-38a5-4d98-baca-55d15409757f",
+            "name": "Form - Completado",
+            "type": "n8n-nodes-base.form",
+            "typeVersion": 2.5,
+            "position": [
+                3840,
+                -208
+            ],
+            "webhookId": "d66ee539-9317-46c3-b5d6-53c369261957"
+        },
+        {
+            "parameters": {
+                "mode": "runOnceForEachItem",
+                "jsCode": "const t = $json.tutoria;\nconst inicio = new Date(t.fecha + 'T' + t.hora);\nconst ahora = new Date();\nconst horasTranscurridas = (ahora - inicio) / (1000 * 60 * 60);\n\nlet puedeFinalizarse = true;\nlet motivo = '';\nif (horasTranscurridas < 0) {\n  puedeFinalizarse = false;\n  motivo = 'Esa tutoria todavia no empieza (' + t.fecha + ' ' + t.hora + '). No puedes finalizarla antes de que comience.';\n} else if (horasTranscurridas < 1) {\n  puedeFinalizarse = false;\n  motivo = 'Todavia no ha pasado 1 hora desde el inicio de la tutoria (' + t.fecha + ' ' + t.hora + '). Intenta de nuevo mas tarde.';\n}\n\nreturn { json: { ...$json, puedeFinalizarse, motivo } };"
+            },
+            "id": "adbaaa1f-fcc8-4612-834d-b9577a47010f",
+            "name": "Code - Validar Momento",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1600,
+                -304
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "combinator": "and",
+                    "conditions": [
+                        {
+                            "leftValue": "={{ $json.puedeFinalizarse }}",
+                            "operator": {
+                                "operation": "true",
+                                "singleValue": true,
+                                "type": "boolean"
+                            },
+                            "rightValue": ""
+                        }
+                    ],
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 1
+                    }
+                },
+                "options": {}
+            },
+            "id": "794b143c-2030-46a5-abe1-63aa62f2203c",
+            "name": "IF - Puede Finalizarse",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [
+                1824,
+                -304
+            ]
+        },
+        {
+            "parameters": {
+                "operation": "completion",
+                "completionTitle": "Todavia no se puede finalizar",
+                "completionMessage": "={{ $json.motivo }}",
+                "options": {}
+            },
+            "id": "2f36c380-ebb1-4aa3-849f-4c5ec23cc063",
+            "name": "Form - Muy Pronto",
+            "type": "n8n-nodes-base.form",
+            "typeVersion": 2.5,
+            "position": [
+                2048,
+                -400
+            ],
+            "webhookId": "7d6a8bf8-8281-46a3-8aec-6a532b2a24f4"
+        }
+    ],
+    "connections": {
+        "Sheets - Get Tutor": {
+            "main": [
+                [
+                    {
+                        "node": "Sheets - Get Tutorias Tutor",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Sheets - Get Tutorias Tutor": {
+            "main": [
+                [
+                    {
+                        "node": "Code in JavaScript",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Code in JavaScript": {
+            "main": [
+                [
+                    {
+                        "node": "If",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "On form submission": {
+            "main": [
+                [
+                    {
+                        "node": "Sheets - Get Tutor",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "If": {
+            "main": [
+                [
+                    {
+                        "node": "Form - Elegir Tutoria",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Form",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Form - Elegir Tutoria": {
+            "main": [
+                [
+                    {
+                        "node": "Code - Capturar Tutoria",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Code - Capturar Tutoria": {
+            "main": [
+                [
+                    {
+                        "node": "Code - Validar Momento",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Form - Asistio": {
+            "main": [
+                [
+                    {
+                        "node": "Code - Calcular Puntos",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Code - Calcular Puntos": {
+            "main": [
+                [
+                    {
+                        "node": "Sheets - Update Tutoria Finalizada",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Sheets - Update Tutoria Finalizada": {
+            "main": [
+                [
+                    {
+                        "node": "Sheets - Get Estudiante Para Puntos",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Sheets - Get Estudiante Para Puntos": {
+            "main": [
+                [
+                    {
+                        "node": "Code - Sumar Puntos",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Code - Sumar Puntos": {
+            "main": [
+                [
+                    {
+                        "node": "IF - Hubo Estudiante",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "IF - Hubo Estudiante": {
+            "main": [
+                [
+                    {
+                        "node": "Sheets - Update Puntos",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Sub-workflow - Notificar Tutor Finalizado",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Sub-workflow - Notificar Tutor Finalizado",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Sheets - Update Puntos": {
+            "main": [
+                [
+                    {
+                        "node": "Sub-workflow - Notificar Estudiante Puntos",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Sub-workflow - Notificar Estudiante Puntos": {
+            "main": [
+                [
+                    {
+                        "node": "Form - Completado",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Sub-workflow - Notificar Tutor Finalizado": {
+            "main": [
+                [
+                    {
+                        "node": "Form - Completado",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Code - Validar Momento": {
+            "main": [
+                [
+                    {
+                        "node": "IF - Puede Finalizarse",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "IF - Puede Finalizarse": {
+            "main": [
+                [
+                    {
+                        "node": "Form - Asistio",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Form - Muy Pronto",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "meta": {
+        "templateCredsSetupCompleted": true,
+        "aiBuilderAssisted": true,
+        "builderVariant": "mcp",
+        "instanceId": "d896f49cabf4ef1adeeec4cb8898ffa41a6e4ce6b4820188881e37855dd2134b"
+    }
+}

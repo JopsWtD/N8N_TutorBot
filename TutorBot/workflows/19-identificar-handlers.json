@@ -1,0 +1,852 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "mode": "runOnceForEachItem",
+                "jsCode": "const texto = String($json.mensaje || '').trim().toLowerCase();\nconst si = ['si','sí','s','yes'];\nconst no = ['no','n'];\nlet esValido = false, esSi = null;\nif (si.includes(texto)) { esValido = true; esSi = true; }\nif (no.includes(texto)) { esValido = true; esSi = false; }\nreturn { json: { esValido, esSi } };"
+            },
+            "id": "fe153a7c-9469-4345-89df-ec5142c719a8",
+            "name": "Code - Interpretar Respuesta",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -352,
+                32
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "combinator": "and",
+                    "conditions": [
+                        {
+                            "leftValue": "={{ $json.esValido }}",
+                            "operator": {
+                                "operation": "true",
+                                "singleValue": true,
+                                "type": "boolean"
+                            },
+                            "rightValue": ""
+                        }
+                    ],
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 1
+                    }
+                },
+                "options": {}
+            },
+            "id": "ad248050-8e1f-4ffd-9e2c-68f5f2ab523f",
+            "name": "IF - Es Valido",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [
+                -128,
+                32
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "combinator": "and",
+                    "conditions": [
+                        {
+                            "leftValue": "={{ $json.esSi }}",
+                            "operator": {
+                                "operation": "false",
+                                "singleValue": true,
+                                "type": "boolean"
+                            },
+                            "rightValue": ""
+                        }
+                    ],
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 1
+                    }
+                },
+                "options": {}
+            },
+            "id": "4ad49bb6-2438-4620-8983-3284b0dd7651",
+            "name": "IF - Dijo No",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [
+                96,
+                -64
+            ]
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "gJcd28BzOQ7UGhWj"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [],
+                    "schema": [],
+                    "value": {}
+                },
+                "mode": "each",
+                "options": {}
+            },
+            "id": "23d5e20f-afec-408d-9d7c-a7cb87f3ddd5",
+            "name": "Sub-workflow - Definicion de Pasos",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1.2,
+            "position": [
+                320,
+                32
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "const pasos = $json.steps\n  .filter(s => s.flujo === 'registro' && s.step_name !== 'preguntar_estudiante')\n  .sort((a, b) => Number(a.step_id) - Number(b.step_id));\nreturn [{ json: { valido: true, valor: false, nuevos_pasos: pasos } }];"
+            },
+            "id": "4b0e7d73-b1ae-4ddb-b3cc-9e9fcfcd128d",
+            "name": "Code - Armar Nuevos Pasos",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                544,
+                32
+            ]
+        },
+        {
+            "parameters": {
+                "inputSource": "passthrough"
+            },
+            "id": "36e7ac57-f700-4d08-9790-108338f84863",
+            "name": "Trigger - Identificar Handlers",
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1.1,
+            "position": [
+                -800,
+                416
+            ]
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "s1",
+                            "name": "valido",
+                            "type": "boolean",
+                            "value": false
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "1c06ff59-60e3-4b37-b7ee-a44bb885fc13",
+            "name": "Set - Invalido",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                96,
+                128
+            ]
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "s2",
+                            "name": "valido",
+                            "type": "boolean",
+                            "value": true
+                        },
+                        {
+                            "id": "s3",
+                            "name": "valor",
+                            "type": "boolean",
+                            "value": true
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "b24df039-5b3c-457d-baa0-b7d04bb9f494",
+            "name": "Set - Si Es Estudiante",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                320,
+                -160
+            ]
+        },
+        {
+            "parameters": {
+                "rules": {
+                    "values": [
+                        {
+                            "conditions": {
+                                "combinator": "and",
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $json.step_name }}",
+                                        "operator": {
+                                            "operation": "equals",
+                                            "type": "string"
+                                        },
+                                        "rightValue": "es_estudiante"
+                                    }
+                                ],
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 1
+                                }
+                            },
+                            "renameOutput": true,
+                            "outputKey": "es_estudiante"
+                        },
+                        {
+                            "conditions": {
+                                "combinator": "and",
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $json.step_name }}",
+                                        "operator": {
+                                            "operation": "equals",
+                                            "type": "string"
+                                        },
+                                        "rightValue": "documento_activo"
+                                    }
+                                ],
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 1
+                                }
+                            },
+                            "renameOutput": true,
+                            "outputKey": "documento_activo"
+                        },
+                        {
+                            "conditions": {
+                                "combinator": "and",
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $json.step_name }}",
+                                        "operator": {
+                                            "operation": "equals",
+                                            "type": "string"
+                                        },
+                                        "rightValue": "ofrecer_registro"
+                                    }
+                                ],
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 1
+                                }
+                            },
+                            "renameOutput": true,
+                            "outputKey": "ofrecer_registro"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "5d706b7c-25e7-4b4a-b4e4-5f00ea151a73",
+            "name": "Switch - Que Paso",
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 3,
+            "position": [
+                -576,
+                400
+            ]
+        },
+        {
+            "parameters": {
+                "mode": "runOnceForEachItem",
+                "jsCode": "const texto = String($json.mensaje || '').trim();\nconst formatoOk = /^\\d{6,15}$/.test(texto);\nreturn { json: { documento: texto, formatoOk, telegram_user: $json.telegram_user } };"
+            },
+            "id": "52eab5df-ac92-4e88-ae69-1d0fcfce63ed",
+            "name": "Doc - Extraer Documento",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -352,
+                416
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "combinator": "and",
+                    "conditions": [
+                        {
+                            "leftValue": "={{ $json.formatoOk }}",
+                            "operator": {
+                                "operation": "true",
+                                "singleValue": true,
+                                "type": "boolean"
+                            },
+                            "rightValue": ""
+                        }
+                    ],
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 1
+                    }
+                },
+                "options": {}
+            },
+            "id": "84ad4ba1-88f2-4b52-8c0b-ebee4ca32980",
+            "name": "Doc - Formato Valido",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [
+                -128,
+                416
+            ]
+        },
+        {
+            "parameters": {
+                "documentId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "1PR6LqHZ2gpEFlrfp_CQyMcbogXnFCsfTeBVRdWtqKH4"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "gid=0"
+                },
+                "filtersUI": {
+                    "values": [
+                        {
+                            "lookupColumn": "documento",
+                            "lookupValue": "={{ $json.documento }}"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "336d8f61-940b-4631-93df-5e4c195f882a",
+            "name": "Doc - Buscar Documento",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4.7,
+            "position": [
+                96,
+                320
+            ],
+            "alwaysOutputData": true,
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "zIS9uzBUTY2kZjIZ",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "const filas = $input.all().map(i => i.json).filter(f => f.documento);\nconst existe = filas.length > 0;\nconst doc = $('Doc - Extraer Documento').first().json.documento;\nreturn [{ json: { existe, documento: doc } }];"
+            },
+            "id": "6d90e335-2d7b-4b2e-85f9-136905da471d",
+            "name": "Doc - Evaluar Existencia",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                320,
+                320
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "combinator": "and",
+                    "conditions": [
+                        {
+                            "leftValue": "={{ $json.existe }}",
+                            "operator": {
+                                "operation": "true",
+                                "singleValue": true,
+                                "type": "boolean"
+                            },
+                            "rightValue": ""
+                        }
+                    ],
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 1
+                    }
+                },
+                "options": {}
+            },
+            "id": "8488e8a2-ec4c-4e70-b838-3ab6f4e5cd2d",
+            "name": "Doc - Existe",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [
+                544,
+                320
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "return [{ json: {\n  valido: true,\n  valor: null,\n  nuevos_pasos: [{\n    step_id: 90,\n    step_name: 'ofrecer_registro',\n    type: 'logic',\n    mensaje: 'Ese documento no esta registrado. Quieres registrarte ahora?',\n    flujo: 'identificar',\n    orden: 90,\n    handler: '369bhZLJTFgkIEf2',\n    direccion_retorno: ''\n  }]\n}}];"
+            },
+            "id": "6249c406-7291-410b-b658-25e40dabd9fb",
+            "name": "Doc - Paso Ofrecer Registro",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                768,
+                416
+            ]
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "f1",
+                            "name": "valido",
+                            "type": "boolean",
+                            "value": false
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "c14da10c-5dfe-47dd-a8ad-94091796be2a",
+            "name": "Doc - Formato Invalido",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                96,
+                512
+            ]
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "e1",
+                            "name": "valido",
+                            "type": "boolean",
+                            "value": true
+                        },
+                        {
+                            "id": "e2",
+                            "name": "valor",
+                            "type": "string",
+                            "value": "={{ $json.documento }}"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "74b6cdfb-5ec3-407f-b14b-cfa8bd889a39",
+            "name": "Doc - Documento Existe",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                768,
+                224
+            ]
+        },
+        {
+            "parameters": {
+                "mode": "runOnceForEachItem",
+                "jsCode": "const texto = String($json.mensaje || '').trim().toLowerCase();\nconst si = ['si','sí','s','yes'];\nconst no = ['no','n'];\nlet esValido = false, esSi = null;\nif (si.includes(texto)) { esValido = true; esSi = true; }\nif (no.includes(texto)) { esValido = true; esSi = false; }\nreturn { json: { esValido, esSi } };"
+            },
+            "id": "723cd508-a887-470f-a70c-af9c15eda89c",
+            "name": "Ofr - Interpretar Respuesta",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                -352,
+                800
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "combinator": "and",
+                    "conditions": [
+                        {
+                            "leftValue": "={{ $json.esValido }}",
+                            "operator": {
+                                "operation": "true",
+                                "singleValue": true,
+                                "type": "boolean"
+                            },
+                            "rightValue": ""
+                        }
+                    ],
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 1
+                    }
+                },
+                "options": {}
+            },
+            "id": "5bd9a8e4-6474-4162-8129-d06797e93073",
+            "name": "Ofr - Es Valido",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [
+                -128,
+                800
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "combinator": "and",
+                    "conditions": [
+                        {
+                            "leftValue": "={{ $json.esSi }}",
+                            "operator": {
+                                "operation": "true",
+                                "singleValue": true,
+                                "type": "boolean"
+                            },
+                            "rightValue": ""
+                        }
+                    ],
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 1
+                    }
+                },
+                "options": {}
+            },
+            "id": "18e8ee9e-4d2c-4a88-a1b9-b0d2d7385b02",
+            "name": "Ofr - Quiere Registrarse",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [
+                96,
+                704
+            ]
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "mode": "id",
+                    "value": "gJcd28BzOQ7UGhWj"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "matchingColumns": [],
+                    "schema": [],
+                    "value": {}
+                },
+                "mode": "each",
+                "options": {}
+            },
+            "id": "87467e91-7e66-488a-acd1-ecde9e9a5ca8",
+            "name": "Ofr - Definicion de Pasos",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1.2,
+            "position": [
+                320,
+                608
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "const pasos = $json.steps\n  .filter(s => s.flujo === 'registro' && s.step_name !== 'preguntar_estudiante')\n  .sort((a, b) => Number(a.step_id) - Number(b.step_id));\nreturn [{ json: { valido: true, valor: true, nuevos_pasos: pasos } }];"
+            },
+            "id": "89844236-7365-4211-a40f-046de0b4daf9",
+            "name": "Ofr - Pasos Registro",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                544,
+                608
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "return [{ json: {\n  valido: true,\n  valor: false,\n  nuevos_pasos: [{\n    step_id: 10,\n    step_name: 'es_estudiante',\n    type: 'logic',\n    mensaje: 'Hola! Eres un estudiante de nuestra institucion?',\n    flujo: 'identificar',\n    orden: 1,\n    handler: '369bhZLJTFgkIEf2',\n    direccion_retorno: ''\n  }, {\n    step_id: 11,\n    step_name: 'documento_activo',\n    type: 'logic',\n    mensaje: 'Ingresa tu numero de documento (solo numeros, entre 6 y 15 digitos)',\n    flujo: 'identificar',\n    orden: 2,\n    handler: '369bhZLJTFgkIEf2',\n    direccion_retorno: ''\n  }]\n}}];"
+            },
+            "id": "bee5bf0f-c2c2-4bd3-bb5c-c05a05c7289a",
+            "name": "Ofr - Reiniciar Identificar",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                320,
+                800
+            ]
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "i1",
+                            "name": "valido",
+                            "type": "boolean",
+                            "value": false
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "dc598a57-697b-4a00-85d5-4333af3de264",
+            "name": "Ofr - Invalido",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                96,
+                896
+            ]
+        }
+    ],
+    "connections": {
+        "Code - Interpretar Respuesta": {
+            "main": [
+                [
+                    {
+                        "node": "IF - Es Valido",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "IF - Es Valido": {
+            "main": [
+                [
+                    {
+                        "node": "IF - Dijo No",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Set - Invalido",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "IF - Dijo No": {
+            "main": [
+                [
+                    {
+                        "node": "Sub-workflow - Definicion de Pasos",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Set - Si Es Estudiante",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Sub-workflow - Definicion de Pasos": {
+            "main": [
+                [
+                    {
+                        "node": "Code - Armar Nuevos Pasos",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Trigger - Identificar Handlers": {
+            "main": [
+                [
+                    {
+                        "node": "Switch - Que Paso",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Switch - Que Paso": {
+            "main": [
+                [
+                    {
+                        "node": "Code - Interpretar Respuesta",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Doc - Extraer Documento",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Ofr - Interpretar Respuesta",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Doc - Extraer Documento": {
+            "main": [
+                [
+                    {
+                        "node": "Doc - Formato Valido",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Doc - Formato Valido": {
+            "main": [
+                [
+                    {
+                        "node": "Doc - Buscar Documento",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Doc - Formato Invalido",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Doc - Buscar Documento": {
+            "main": [
+                [
+                    {
+                        "node": "Doc - Evaluar Existencia",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Doc - Evaluar Existencia": {
+            "main": [
+                [
+                    {
+                        "node": "Doc - Existe",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Doc - Existe": {
+            "main": [
+                [
+                    {
+                        "node": "Doc - Documento Existe",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Doc - Paso Ofrecer Registro",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Ofr - Interpretar Respuesta": {
+            "main": [
+                [
+                    {
+                        "node": "Ofr - Es Valido",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Ofr - Es Valido": {
+            "main": [
+                [
+                    {
+                        "node": "Ofr - Quiere Registrarse",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Ofr - Invalido",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Ofr - Quiere Registrarse": {
+            "main": [
+                [
+                    {
+                        "node": "Ofr - Definicion de Pasos",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Ofr - Reiniciar Identificar",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Ofr - Definicion de Pasos": {
+            "main": [
+                [
+                    {
+                        "node": "Ofr - Pasos Registro",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "meta": {
+        "aiBuilderAssisted": true,
+        "builderVariant": "mcp",
+        "instanceId": "d896f49cabf4ef1adeeec4cb8898ffa41a6e4ce6b4820188881e37855dd2134b"
+    }
+}
